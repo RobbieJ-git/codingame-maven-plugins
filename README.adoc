@@ -1,0 +1,2 @@
+Ce projet fournit un ensemble de plugin mavens pour simplifier le développement sur la plateforme Codingame.
+Pour l'instant, il n'y a que `codingame-simpleclass-maven-plugin` qui est déja très utile.
