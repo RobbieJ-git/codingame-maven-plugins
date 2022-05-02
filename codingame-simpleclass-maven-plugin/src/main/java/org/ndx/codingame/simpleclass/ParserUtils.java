@@ -26,10 +26,15 @@ public class ParserUtils {
 	public static TypeDeclaration getPublicClassIn(final CompilationUnit playerUnit) {
 		final TypeDeclaration playerClass = playerUnit.getTypes().stream()
 				.findFirst()
-				.filter(t -> 
-					Modifier.isPublic(t.getModifiers()))
+				.filter(t -> {
+					boolean public1 = Modifier.isPublic(t.getModifiers());
+					if (!public1) {
+					  System.out.println(t.getClass().getName());
+					}
+          return public1; 
+				})
 				.orElseThrow(() -> new RuntimeException(
-						"Each java source should contain a public class, or else it's impossible for me to assemble them"));
+						"java source "+playerUnit.getTypes()+" should contain a public class, or else it's impossible for me to assemble them"));
 		return playerClass;
 	}
 

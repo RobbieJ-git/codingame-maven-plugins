@@ -49,8 +49,12 @@ public class ClassesFinder {
 	private Map<String, CompilationUnit> parseSources(Collection<File> sourceFiles) throws ParseException, IOException {
 		Map<String, CompilationUnit> units = new HashMap<>();
 		for (File f : sourceFiles) {
-			CompilationUnit parsed = ParserUtils.parse(f);
-			units.put(ParserUtils.getPublicClassFullName(parsed), parsed);
+		  try {
+		    CompilationUnit parsed = ParserUtils.parse(f);
+		    units.put(ParserUtils.getPublicClassFullName(parsed), parsed);
+		  } catch(Exception e) {
+		    log.error("Error while parsing "+f);
+		  }
 		}
 		return units;
 	}
