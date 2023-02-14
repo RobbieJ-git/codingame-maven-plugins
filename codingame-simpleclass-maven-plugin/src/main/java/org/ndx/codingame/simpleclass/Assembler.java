@@ -57,7 +57,6 @@ public class Assembler extends AbstractMojo {
 			Map<String, CompilationUnit> classes = new ClassesFinder(getLog()).findAll(sourceFiles, project.getArtifacts()); 
 			getLog().info(String.format("Extend local Player class (found at %s) with all local classes and classes found in sources", playerClass));
 			CompilationUnit generated = new PlayerBuilder(classes.keySet()).build(classes, ParserUtils.getPublicClassFullName(playerClass));
-			addBuildDateTo(generated);
 			
 			String outputStr;
 			if ("false".equals(removeComments)) {
@@ -70,6 +69,8 @@ public class Assembler extends AbstractMojo {
         outputStr = outputStr.replace("    ", "\t");
         outputStr = outputStr.replace("  ", "\t");
 			}
+
+			outputStr = "//"+buildDateString() + "\n\r" + outputStr;
 			
 			
       FileUtils.write(output, outputStr);
@@ -115,12 +116,16 @@ public class Assembler extends AbstractMojo {
 		return returned;
 	}
 
+	
 	private void addBuildDateTo(CompilationUnit playerUnit) {
+		playerUnit.setComment(new BlockComment(buildDateString()));
+	}
+
+	private String buildDateString() {
 		Instant instant = Instant.now().truncatedTo( ChronoUnit.MILLIS );
 		ZoneId zoneId = ZoneId.systemDefault();
 		ZonedDateTime zdt = instant.atZone( zoneId );
-		String output = zdt.toString();
-		playerUnit.setComment(new BlockComment(String.format(" built on %s", output)));
+		return String.format(" built on %s", zdt.toString());
 	}
 
 }
