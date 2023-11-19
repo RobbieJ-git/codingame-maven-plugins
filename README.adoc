@@ -7,27 +7,24 @@ Pour l'instant, il n'y a que `codingame-simpleclass-maven-plugin` qui est déja 
 dans le pom.xml du projet :
 
 
-````
-  <build>
-    <plugins>
 
-      <plugin>
-        <groupId>org.ndx.codingame</groupId>
-        <artifactId>codingame-simpleclass-maven-plugin</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <configuration>
-          <removeComments>true</removeComments>
-          <replaceSpaces>true</replaceSpaces>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>assemble</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-  </build>
-````
+	  <build>
+	    <plugins>
+	      <plugin>
+	        <groupId>org.ndx.codingame</groupId>
+	        <artifactId>codingame-simpleclass-maven-plugin</artifactId>
+	        <version>0.0.1-SNAPSHOT</version>
+	        <configuration>
+	          <removeComments>true</removeComments>
+	          <replaceSpaces>true</replaceSpaces>
+	        </configuration>
+	        <executions>
+	          <execution>
+	            <goals>
+	              <goal>assemble</goal>
+	            </goals>
+	          </execution>
+	        </executions>
+	      </plugin>
+	    </plugins>
+	  </build>
