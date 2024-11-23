@@ -1,6 +1,5 @@
 package org.ndx.codingame.simpleclass;
 
-import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -11,10 +10,12 @@ import java.util.stream.Collectors;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.IntersectionType;
@@ -22,6 +23,8 @@ import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.UnionType;
 import com.github.javaparser.ast.type.WildcardType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class PlayerBuilder {
   public class DepdendenciesExtractor extends VoidVisitorAdapter<Void> {
@@ -73,24 +76,26 @@ public class PlayerBuilder {
 
     @Override
     public void visit(ImportDeclaration n, Void arg) {
+      DefaultPrinterConfiguration configuration = new DefaultPrinterConfiguration();
+      configuration.addOption(new DefaultConfigurationOption(DefaultPrinterConfiguration.ConfigOption.PRINT_COMMENTS, false));
       if (n.isStatic()) {
         if (n.isAsterisk()) {
-          qualify().allMethodsIn(n.getName().toStringWithoutComments());
+          qualify().allMethodsIn(n.getName().toString(configuration));
         } else {
-          qualify().onlyMethod(n.getName().toStringWithoutComments());
+          qualify().onlyMethod(n.getName().toString(configuration));
         }
       } else {
         if (n.isAsterisk()) {
-          qualify().allClassesIn(n.getName().toStringWithoutComments());
+          qualify().allClassesIn(n.getName().toString(configuration));
         } else {
-          qualify().onlyClass(n.getName().toStringWithoutComments());
+          qualify().onlyClass(n.getName().toString(configuration));
         }
       }
     }
 
     @Override
     public void visit(PackageDeclaration n, Void arg) {
-      qualify().allClassesIn(n.getPackageName());
+      qualify().allClassesIn(n.getName().asString());
       super.visit(n, arg);
     }
 
@@ -111,17 +116,12 @@ public class PlayerBuilder {
 
     @Override
     public void visit(ClassOrInterfaceType n, Void arg) {
-      add(n.getName());
+      add(n.getName().asString());
       super.visit(n, arg);
     }
 
     @Override
     public void visit(IntersectionType n, Void arg) {
-      super.visit(n, arg);
-    }
-
-    @Override
-    public void visit(ReferenceType n, Void arg) {
       super.visit(n, arg);
     }
 
@@ -137,7 +137,7 @@ public class PlayerBuilder {
 
     @Override
     public void visit(NameExpr n, Void arg) {
-      add(n.getName());
+      add(n.getName().asString());
       super.visit(n, arg);
     }
 
@@ -223,11 +223,11 @@ public class PlayerBuilder {
   }
 
   private void generateType(TypeDeclaration d, CompilationUnit generated) {
-    boolean isAbstract = Modifier.isAbstract(d.getModifiers());
+    boolean isAbstract = d.getModifiers().stream().anyMatch(x -> com.github.javaparser.ast.Modifier.Keyword.PUBLIC == x);
     // Setting modifiers to 0 remove the "public" modifier
-    d.setModifiers(0);
+    d.removeModifier(com.github.javaparser.ast.Modifier.Keyword.PUBLIC);
     if (isAbstract)
-      d.setModifiers(Modifier.ABSTRACT);
+      d.addModifier(Modifier.Keyword.ABSTRACT);
     generated.getTypes().add(d);
   }
 
@@ -257,7 +257,7 @@ public class PlayerBuilder {
         return;
       }
     }
-    generated.getImports().add(new ImportDeclaration(new NameExpr(d), false, false));
+    generated.getImports().add(new ImportDeclaration(new Name(d), false, false));
   }
 
 }

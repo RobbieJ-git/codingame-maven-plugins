@@ -60,7 +60,8 @@ public class ClassesFinder {
 	}
 
 	private CompilationUnit parse(InputStream s) throws ParseException {
-		return ParserUtils.augment(JavaParser.parse(s));
+		JavaParser parser = new JavaParser();
+		return ParserUtils.augment(parser.parse(s).getResult().get());
 	}
 
 	private Map<String, CompilationUnit> parseDependencies(Set<Artifact> artifacts) {

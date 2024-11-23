@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -62,7 +64,9 @@ public class Assembler extends AbstractMojo {
 			if ("false".equals(removeComments)) {
 			  outputStr = generated.toString();
 			} else {
-			  outputStr = generated.toStringWithoutComments();
+				DefaultPrinterConfiguration configuration = new DefaultPrinterConfiguration();
+				configuration.addOption(new DefaultConfigurationOption(DefaultPrinterConfiguration.ConfigOption.PRINT_COMMENTS, false));
+				outputStr = generated.toString(configuration);
 			}
 			
 			if ("true".equals(replaceSpaces)) {

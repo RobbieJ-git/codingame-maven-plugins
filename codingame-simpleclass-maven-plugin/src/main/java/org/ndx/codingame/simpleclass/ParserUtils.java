@@ -1,24 +1,24 @@
 package org.ndx.codingame.simpleclass;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
+
 public class ParserUtils {
 
 	public static String getPublicClassFullName(final CompilationUnit playerUnit) {
 		final TypeDeclaration playerClass = ParserUtils.getPublicClassIn(playerUnit);
-		final PackageDeclaration packageObject = playerUnit.getPackage();
-		if (packageObject == null) {
-			return playerClass.getName();
+		final Optional<PackageDeclaration> packageObject = playerUnit.getPackageDeclaration();
+		if (packageObject.isEmpty()) {
+			return playerClass.getName().asString();
 		} else {
-			final String playerClassName = packageObject.getPackageName() + "." + playerClass.getName();
+			final String playerClassName = packageObject.get().getNameAsString() + "." + playerClass.getName();
 			return playerClassName;
 		}
 	}
@@ -27,7 +27,7 @@ public class ParserUtils {
 		final TypeDeclaration playerClass = playerUnit.getTypes().stream()
 				.findFirst()
 				.filter(t -> {
-					boolean public1 = Modifier.isPublic(t.getModifiers());
+					boolean public1 = t.getModifiers().stream().anyMatch(x -> com.github.javaparser.ast.Modifier.Keyword.PUBLIC == x.getKeyword());
 					if (!public1) {
 					  System.out.println(t.getClass().getName());
 					}
@@ -39,7 +39,8 @@ public class ParserUtils {
 	}
 
 	public static CompilationUnit parse(final File f) throws ParseException, IOException {
-		return ParserUtils.augment(JavaParser.parse(f));
+		JavaParser parser = new JavaParser();
+		return ParserUtils.augment(parser.parse(f).getResult().get());
 	}
 
 	/**
